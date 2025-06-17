@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/coursework2025/static/css/main.d323b859.css",
+    "main.js": "/coursework2025/static/js/main.10b812c4.js",
+    "index.html": "/coursework2025/index.html",
+    "main.d323b859.css.map": "/coursework2025/static/css/main.d323b859.css.map",
+    "main.10b812c4.js.map": "/coursework2025/static/js/main.10b812c4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d323b859.css",
+    "static/js/main.10b812c4.js"
+  ]
+}
