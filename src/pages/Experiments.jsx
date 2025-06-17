@@ -22,13 +22,51 @@ const generateMatrix = (n, minW = 1, maxW = 10) => {
   );
 };
 
-const tValues = [100, 500, 1000, 5000, 10000];
-const sizes = [3, 5, 7, 9, 11];
+// Втричі більше значень t
+const tValues = [
+  100, 250, 400, 500, 650, 800, 1000, 2500, 4000, 5000, 6500, 8000, 10000,
+  13000, 16000,
+];
+
+// Втричі більше значень розмірів
+const sizes = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
+// Втричі більше діапазонів ваг
 const weightRanges = [
+  { min: 1, max: 2 },
+  { min: 1, max: 3 },
+  { min: 1, max: 4 },
   { min: 1, max: 5 },
+  { min: 1, max: 7 },
   { min: 1, max: 10 },
+  { min: 3, max: 12 },
+  { min: 5, max: 15 },
   { min: 5, max: 20 },
 ];
+
+// Допоміжна функція для експорту даних у CSV
+function exportToCSV(data, filename) {
+  if (!data || data.length === 0) return;
+  const replacer = (key, value) => (value === null ? "" : value);
+  const header = Object.keys(data[0]);
+  const csv =
+    header.join(",") +
+    "\n" +
+    data
+      .map((row) =>
+        header
+          .map((fieldName) => JSON.stringify(row[fieldName], replacer))
+          .join(",")
+      )
+      .join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 const Experiments = () => {
   const [resultsT, setResultsT] = useState([]);
@@ -62,14 +100,16 @@ const Experiments = () => {
     setLoading(true);
     setTimeout(() => {
       const n = 7;
-      let data = [];
+      let tData = [];
+      let nData = [];
+      let wData = [];
       // t
       tValues.forEach((t) => {
         const matrix = generateMatrix(n, 1, 10);
         const t0 = performance.now();
         const res = stochasticPlacement(matrix, t);
         const t1 = performance.now();
-        data.push({ param: `t=${t}`, cf: res.cf, time: +(t1 - t0).toFixed(2) });
+        tData.push({ t, cf: res.cf, time: +(t1 - t0).toFixed(2) });
       });
       // n
       sizes.forEach((size) => {
@@ -77,8 +117,8 @@ const Experiments = () => {
         const t0 = performance.now();
         const res = stochasticPlacement(matrix, 1000);
         const t1 = performance.now();
-        data.push({
-          param: `n=${size}`,
+        nData.push({
+          n: size,
           cf: res.cf,
           time: +(t1 - t0).toFixed(2),
         });
@@ -89,13 +129,13 @@ const Experiments = () => {
         const t0 = performance.now();
         const res = stochasticPlacement(matrix, 1000);
         const t1 = performance.now();
-        data.push({
-          param: `w=[${min},${max}]`,
+        wData.push({
+          w: `[${min},${max}]`,
           cf: res.cf,
           time: +(t1 - t0).toFixed(2),
         });
       });
-      setResultsParams(data);
+      setResultsParams({ tData, nData, wData });
       setLoading(false);
     }, 100);
   };
@@ -137,49 +177,69 @@ const Experiments = () => {
         <h2 className="text-xl font-semibold mb-2">
           3.4.1 Визначення параметра t для стохастичного алгоритму
         </h2>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={runTExperiment}
-          disabled={loading}>
-          Запустити експеримент
-        </button>
+        <div className="flex gap-2 mb-2">
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={runTExperiment}
+            disabled={loading}>
+            Запустити експеримент
+          </button>
+          {resultsT.length > 0 && (
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              onClick={() => exportToCSV(resultsT, "t_experiment.csv")}>
+              Завантажити результати
+            </button>
+          )}
+        </div>
         {resultsT.length > 0 && (
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={resultsT}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="t" />
-                <YAxis
-                  yAxisId="left"
-                  label={{ value: "CF", angle: -90, position: "insideLeft" }}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  label={{
-                    value: "Час (мс)",
-                    angle: 90,
-                    position: "insideRight",
-                  }}
-                />
-                <Tooltip />
-                <Legend />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="cf"
-                  stroke="#8884d8"
-                  name="CF"
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="time"
-                  stroke="#82ca9d"
-                  name="Час (мс)"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="mt-4 space-y-8">
+            {/* Графік 1: CF від T */}
+            <div>
+              <h3 className="font-semibold mb-2">Залежність CF від t</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={resultsT}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="t" />
+                  <YAxis
+                    label={{ value: "CF", angle: -90, position: "insideLeft" }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="cf"
+                    stroke="#8884d8"
+                    name="CF"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Графік 2: Час від T */}
+            <div>
+              <h3 className="font-semibold mb-2">Залежність часу від t</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={resultsT}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="t" />
+                  <YAxis
+                    label={{
+                      value: "Час (мс)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="time"
+                    stroke="#82ca9d"
+                    name="Час (мс)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
             <table className="mt-4 w-full text-sm border">
               <thead>
                 <tr>
@@ -207,67 +267,162 @@ const Experiments = () => {
         <h2 className="text-xl font-semibold mb-2">
           3.4.2 Дослідження впливу параметрів стохастичного алгоритму
         </h2>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={runParamsExperiment}
-          disabled={loading}>
-          Запустити експеримент
-        </button>
-        {resultsParams.length > 0 && (
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={resultsParams}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="param" />
-                <YAxis
-                  yAxisId="left"
-                  label={{ value: "CF", angle: -90, position: "insideLeft" }}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  label={{
-                    value: "Час (мс)",
-                    angle: 90,
-                    position: "insideRight",
-                  }}
-                />
-                <Tooltip />
-                <Legend />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="cf"
-                  stroke="#8884d8"
-                  name="CF"
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="time"
-                  stroke="#82ca9d"
-                  name="Час (мс)"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-            <table className="mt-4 w-full text-sm border">
-              <thead>
-                <tr>
-                  <th className="border px-2">Параметр</th>
-                  <th className="border px-2">CF</th>
-                  <th className="border px-2">Час (мс)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultsParams.map((r, i) => (
-                  <tr key={i}>
-                    <td className="border px-2">{r.param}</td>
-                    <td className="border px-2">{r.cf}</td>
-                    <td className="border px-2">{r.time}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flex gap-2 mb-2">
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={runParamsExperiment}
+            disabled={loading}>
+            Запустити експеримент
+          </button>
+          {resultsParams.tData && (
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              onClick={() => {
+                exportToCSV(resultsParams.tData, "params_t.csv");
+                exportToCSV(resultsParams.nData, "params_n.csv");
+                exportToCSV(resultsParams.wData, "params_w.csv");
+              }}>
+              Завантажити результати
+            </button>
+          )}
+        </div>
+        {resultsParams.tData && (
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* t-графіки */}
+            <div>
+              <h3 className="font-semibold mb-2">CF від t</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsParams.tData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="t" />
+                  <YAxis
+                    label={{ value: "CF", angle: -90, position: "insideLeft" }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="cf"
+                    stroke="#8884d8"
+                    name="CF"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Час від t</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsParams.tData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="t" />
+                  <YAxis
+                    label={{
+                      value: "Час (мс)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="time"
+                    stroke="#82ca9d"
+                    name="Час (мс)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {/* n-графіки */}
+            <div>
+              <h3 className="font-semibold mb-2">CF від n</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsParams.nData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="n" />
+                  <YAxis
+                    label={{ value: "CF", angle: -90, position: "insideLeft" }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="cf"
+                    stroke="#8884d8"
+                    name="CF"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Час від n</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsParams.nData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="n" />
+                  <YAxis
+                    label={{
+                      value: "Час (мс)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="time"
+                    stroke="#82ca9d"
+                    name="Час (мс)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {/* w-графіки */}
+            <div>
+              <h3 className="font-semibold mb-2">CF від w</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsParams.wData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="w" />
+                  <YAxis
+                    label={{ value: "CF", angle: -90, position: "insideLeft" }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="cf"
+                    stroke="#8884d8"
+                    name="CF"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Час від w</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsParams.wData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="w" />
+                  <YAxis
+                    label={{
+                      value: "Час (мс)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="time"
+                    stroke="#82ca9d"
+                    name="Час (мс)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
       </section>
@@ -277,85 +432,139 @@ const Experiments = () => {
         <h2 className="text-xl font-semibold mb-2">
           3.4.3 Вплив розмірності задачі на точність та час роботи алгоритмів
         </h2>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={runSizeExperiment}
-          disabled={loading}>
-          Запустити експеримент
-        </button>
+        <div className="flex gap-2 mb-2">
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            onClick={runSizeExperiment}
+            disabled={loading}>
+            Запустити експеримент
+          </button>
+          {resultsSize.length > 0 && (
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              onClick={() => exportToCSV(resultsSize, "size_experiment.csv")}>
+              Завантажити результати
+            </button>
+          )}
+        </div>
         {resultsSize.length > 0 && (
-          <div className="mt-4">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={resultsSize}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="n" />
-                <YAxis
-                  yAxisId="left"
-                  label={{ value: "CF", angle: -90, position: "insideLeft" }}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  label={{
-                    value: "Час (мс)",
-                    angle: 90,
-                    position: "insideRight",
-                  }}
-                />
-                <Tooltip />
-                <Legend />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="greedy_cf"
-                  stroke="#8884d8"
-                  name="Greedy CF"
-                />
-                <Line
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="stochastic_cf"
-                  stroke="#ff7300"
-                  name="Stochastic CF"
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="greedy_time"
-                  stroke="#82ca9d"
-                  name="Greedy Час"
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="stochastic_time"
-                  stroke="#0088FE"
-                  name="Stochastic Час"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-            <table className="mt-4 w-full text-sm border">
-              <thead>
-                <tr>
-                  <th className="border px-2">n</th>
-                  <th className="border px-2">Greedy CF</th>
-                  <th className="border px-2">Greedy Час (мс)</th>
-                  <th className="border px-2">Stochastic CF</th>
-                  <th className="border px-2">Stochastic Час (мс)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {resultsSize.map((r) => (
-                  <tr key={r.n}>
-                    <td className="border px-2">{r.n}</td>
-                    <td className="border px-2">{r.greedy_cf}</td>
-                    <td className="border px-2">{r.greedy_time}</td>
-                    <td className="border px-2">{r.stochastic_cf}</td>
-                    <td className="border px-2">{r.stochastic_time}</td>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Графік 1: CF Greedy */}
+            <div>
+              <h3 className="font-semibold mb-2">Greedy: CF від n</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsSize}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="n" />
+                  <YAxis
+                    label={{ value: "CF", angle: -90, position: "insideLeft" }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="greedy_cf"
+                    stroke="#8884d8"
+                    name="Greedy CF"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Графік 2: CF Stochastic */}
+            <div>
+              <h3 className="font-semibold mb-2">Stochastic: CF від n</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsSize}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="n" />
+                  <YAxis
+                    label={{ value: "CF", angle: -90, position: "insideLeft" }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="stochastic_cf"
+                    stroke="#ff7300"
+                    name="Stochastic CF"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Графік 3: Час Greedy */}
+            <div>
+              <h3 className="font-semibold mb-2">Greedy: Час від n</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsSize}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="n" />
+                  <YAxis
+                    label={{
+                      value: "Час (мс)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="greedy_time"
+                    stroke="#82ca9d"
+                    name="Greedy Час"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Графік 4: Час Stochastic */}
+            <div>
+              <h3 className="font-semibold mb-2">Stochastic: Час від n</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={resultsSize}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="n" />
+                  <YAxis
+                    label={{
+                      value: "Час (мс)",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="stochastic_time"
+                    stroke="#0088FE"
+                    name="Stochastic Час"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="md:col-span-2">
+              <table className="mt-4 w-full text-sm border">
+                <thead>
+                  <tr>
+                    <th className="border px-2">n</th>
+                    <th className="border px-2">Greedy CF</th>
+                    <th className="border px-2">Greedy Час (мс)</th>
+                    <th className="border px-2">Stochastic CF</th>
+                    <th className="border px-2">Stochastic Час (мс)</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {resultsSize.map((r) => (
+                    <tr key={r.n}>
+                      <td className="border px-2">{r.n}</td>
+                      <td className="border px-2">{r.greedy_cf}</td>
+                      <td className="border px-2">{r.greedy_time}</td>
+                      <td className="border px-2">{r.stochastic_cf}</td>
+                      <td className="border px-2">{r.stochastic_time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </section>

@@ -2,14 +2,13 @@ import React from "react";
 import { greedyPlacement, stochasticPlacement } from "../functions";
 
 const Home = () => {
-  const [inputMode, setInputMode] = React.useState("manual"); // manual | auto
+  const [inputMode, setInputMode] = React.useState("manual");
   const [size, setSize] = React.useState(3);
   const [matrix, setMatrix] = React.useState(
     Array(3)
       .fill()
       .map(() => Array(3).fill(1))
   );
-  const [method, setMethod] = React.useState("GA");
   const [iterations, setIterations] = React.useState(100);
 
   // For auto generation
@@ -17,7 +16,10 @@ const Home = () => {
   const [maxWeight, setMaxWeight] = React.useState(10);
 
   // Results state
-  const [result, setResult] = React.useState(null);
+  const [results, setResults] = React.useState({
+    greedy: null,
+    stochastic: null,
+  });
 
   // Save task as JSON
   const handleSave = () => {
@@ -39,12 +41,13 @@ const Home = () => {
   };
 
   // Export result as JSON
-  const handleExportResult = () => {
+  const handleExportResult = (type) => {
+    const result = results[type];
     if (!result) return;
     const data = {
       size: size,
       placement: result.placement,
-      algorithm: method,
+      algorithm: type === "greedy" ? "GA" : "SA",
       corners: result.corners,
       cf: result.cf,
     };
@@ -54,7 +57,7 @@ const Home = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "result.json";
+    a.download = `result_${type}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -84,7 +87,6 @@ const Home = () => {
       }
     };
     reader.readAsText(file);
-    // reset input value to allow re-uploading the same file
     e.target.value = "";
   };
 
@@ -108,11 +110,6 @@ const Home = () => {
     setMatrix(newMatrix);
   };
 
-  // Handle method change
-  const handleMethodChange = (e) => {
-    setMethod(e.target.value);
-  };
-
   // Handle iterations change
   const handleIterationsChange = (e) => {
     setIterations(e.target.value);
@@ -128,14 +125,12 @@ const Home = () => {
     e.preventDefault();
     const n = size;
     const totalCells = n * n;
-    // All cells filled with random weights
     let arr = Array(totalCells)
       .fill()
       .map(
         () =>
           Math.floor(Math.random() * (maxWeight - minWeight + 1)) + minWeight
       );
-    // Convert to matrix
     const newMatrix = [];
     for (let i = 0; i < n; i++) {
       newMatrix.push(arr.slice(i * n, (i + 1) * n));
@@ -147,11 +142,9 @@ const Home = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      let res =
-        method !== "GA"
-          ? stochasticPlacement(matrix, iterations)
-          : greedyPlacement(matrix);
-      setResult(res);
+      const greedyRes = greedyPlacement(matrix);
+      const stochasticRes = stochasticPlacement(matrix, iterations);
+      setResults({ greedy: greedyRes, stochastic: stochasticRes });
     } catch (error) {
       console.error("Помилка:", error);
     }
@@ -161,11 +154,11 @@ const Home = () => {
   const handleEdit = () => setInputMode("manual");
 
   // Render result table
-  const renderResultTable = () => {
+  const renderResultTable = (result, label, type) => {
     if (!result || !result.placement) return null;
     return (
       <div className="mt-6">
-        <h3 className="font-semibold text-lg mb-2">Розміщення ваг</h3>
+        <h3 className="font-semibold text-lg mb-2">{label}</h3>
         <table className="mx-auto border-collapse border border-gray-400">
           <tbody>
             {result.placement.map((row, i) => (
@@ -204,7 +197,7 @@ const Home = () => {
         )}
         <button
           type="button"
-          onClick={handleExportResult}
+          onClick={() => handleExportResult(type)}
           className="mt-4 bg-gray-700 hover:bg-gray-900 text-white font-semibold py-1 px-4 rounded transition">
           Експортувати результат
         </button>
@@ -213,7 +206,7 @@ const Home = () => {
   };
 
   return (
-    <main className="flex items-center justify-center py-[100px] bg-gray-50">
+    <main className="flex items-center justify-center py-[100px]">
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl space-y-6">
@@ -371,30 +364,16 @@ const Home = () => {
 
         <div>
           <label className="block text-gray-700 font-medium mb-2">
-            Спосіб розміщення:
-            <select
-              value={method}
-              onChange={handleMethodChange}
-              className="ml-3 border border-gray-300 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400">
-              <option value="GA">GA</option>
-              <option value="stochastic">SA</option>
-            </select>
+            Кількість ітерацій для SA:
+            <input
+              type="number"
+              min="1"
+              value={iterations}
+              onChange={handleIterationsChange}
+              className="ml-3 border border-gray-300 rounded px-3 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
           </label>
         </div>
-        {method === "stochastic" && (
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Кількість ітерацій:
-              <input
-                type="number"
-                min="1"
-                value={iterations}
-                onChange={handleIterationsChange}
-                className="ml-3 border border-gray-300 rounded px-3 py-1 w-24 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </label>
-          </div>
-        )}
         <div>
           <button
             type="submit"
@@ -403,7 +382,8 @@ const Home = () => {
           </button>
         </div>
         {/* Results */}
-        {renderResultTable()}
+        {renderResultTable(results.greedy, "Результат (GA)", "greedy")}
+        {renderResultTable(results.stochastic, "Результат (SA)", "stochastic")}
       </form>
     </main>
   );

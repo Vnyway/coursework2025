@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 import { Header } from "./components";
-import { Home, IndividualTask, Experiments } from "./pages";
+import { Home, Experiments } from "./pages";
 
 const Layout = () => (
   <>
@@ -15,7 +15,6 @@ const App = () => {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/individualTask" element={<IndividualTask />} />
           <Route path="/experiments" element={<Experiments />} />
         </Route>
       </Routes>
