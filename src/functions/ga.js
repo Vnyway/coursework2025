@@ -10,38 +10,59 @@ export const greedyPlacement = (matrix) => {
   // Сортуємо ваги за спаданням
   weights.sort((a, b) => b - a);
 
-  // Генеруємо спіральний порядок індексів
+  // Генеруємо спіральний порядок індексів (для парних і непарних n)
   function spiralOrder(n) {
     const res = [];
+    const visited = Array.from({ length: n }, () => Array(n).fill(false));
+    let dirs = [
+      [0, 1], // вправо
+      [1, 0], // вниз
+      [0, -1], // вліво
+      [-1, 0], // вгору
+    ];
     let x, y;
     if (n % 2 === 1) {
       x = y = Math.floor(n / 2);
-      res.push([x, y]);
     } else {
       x = n / 2 - 1;
       y = n / 2 - 1;
-      res.push([x, y], [x, y + 1], [x + 1, y + 1], [x + 1, y]);
     }
-    let dx = [0, 1, 0, -1],
-      dy = [1, 0, -1, 0];
-    let step = 1,
-      dir = 0,
-      cnt = n % 2 === 1 ? 1 : 4;
-    x = res[res.length - 1][0];
-    y = res[res.length - 1][1];
+    let dir = 0,
+      steps = 1,
+      cnt = 0;
+    res.push([x, y]);
+    visited[x][y] = true;
+    if (n % 2 === 0) {
+      // Для парних n додаємо ще 3 центральні клітинки
+      const centers = [
+        [x, y + 1],
+        [x + 1, y + 1],
+        [x + 1, y],
+      ];
+      for (const [cx, cy] of centers) {
+        res.push([cx, cy]);
+        visited[cx][cy] = true;
+      }
+      cnt = 4;
+      x = x + 1; // остання додана координата
+      y = y;
+    } else {
+      cnt = 1;
+    }
     while (cnt < n * n) {
       for (let d = 0; d < 2; d++) {
-        for (let s = 0; s < step; s++) {
-          x += dx[dir];
-          y += dy[dir];
-          if (x >= 0 && x < n && y >= 0 && y < n) {
+        for (let s = 0; s < steps; s++) {
+          x += dirs[dir][0];
+          y += dirs[dir][1];
+          if (x >= 0 && x < n && y >= 0 && y < n && !visited[x][y]) {
             res.push([x, y]);
+            visited[x][y] = true;
             cnt++;
           }
         }
         dir = (dir + 1) % 4;
       }
-      step++;
+      steps++;
     }
     return res;
   }

@@ -22,21 +22,12 @@ const generateMatrix = (n, minW = 1, maxW = 10) => {
   );
 };
 
-function exportToCSV(data, filename) {
-  if (!data || data.length === 0) return;
-  const replacer = (key, value) => (value === null ? "" : value);
-  const header = Object.keys(data[0]);
-  const csv =
-    header.join(",") +
-    "\n" +
-    data
-      .map((row) =>
-        header
-          .map((fieldName) => JSON.stringify(row[fieldName], replacer))
-          .join(",")
-      )
-      .join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
+// Зберегти дані у форматі JSON
+function exportToJSON(data, filename) {
+  if (!data) return;
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -171,10 +162,14 @@ const Experiments = () => {
         }
         data.push({
           n,
-          greedy_cf: +(greedy_cf / numInstances).toFixed(2),
-          greedy_time: +(greedy_time / numInstances).toFixed(2),
-          stochastic_cf: +(stochastic_cf / numInstances).toFixed(2),
-          stochastic_time: +(stochastic_time / numInstances).toFixed(2),
+          greedy: {
+            cf: +(greedy_cf / numInstances).toFixed(2),
+            time: +(greedy_time / numInstances).toFixed(2),
+          },
+          stochastic: {
+            cf: +(stochastic_cf / numInstances).toFixed(2),
+            time: +(stochastic_time / numInstances).toFixed(2),
+          },
         });
       });
       setResultsSize(data);
@@ -319,8 +314,8 @@ const Experiments = () => {
           {resultsT.length > 0 && (
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              onClick={() => exportToCSV(resultsT, "t_experiment.csv")}>
-              Завантажити результати
+              onClick={() => exportToJSON(resultsT, "t_experiment.json")}>
+              Завантажити результати (JSON)
             </button>
           )}
         </div>
@@ -408,10 +403,10 @@ const Experiments = () => {
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               onClick={() => {
-                exportToCSV(resultsParams.nData, "params_n.csv");
-                exportToCSV(resultsParams.wData, "params_w.csv");
+                exportToJSON(resultsParams.nData, "params_n.json");
+                exportToJSON(resultsParams.wData, "params_w.json");
               }}>
-              Завантажити результати
+              Завантажити результати (JSON)
             </button>
           )}
         </div>
@@ -505,6 +500,49 @@ const Experiments = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            {/* Таблиці для nData та wData */}
+            <div className="md:col-span-2">
+              <h3 className="font-semibold mb-2">Таблиця результатів (n)</h3>
+              <table className="mt-2 w-full text-sm border">
+                <thead>
+                  <tr>
+                    <th className="border px-2">n</th>
+                    <th className="border px-2">CF</th>
+                    <th className="border px-2">Час (мс)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultsParams.nData.map((r) => (
+                    <tr key={r.n}>
+                      <td className="border px-2">{r.n}</td>
+                      <td className="border px-2">{r.cf}</td>
+                      <td className="border px-2">{r.time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="md:col-span-2">
+              <h3 className="font-semibold mb-2">Таблиця результатів (w)</h3>
+              <table className="mt-2 w-full text-sm border">
+                <thead>
+                  <tr>
+                    <th className="border px-2">w</th>
+                    <th className="border px-2">CF</th>
+                    <th className="border px-2">Час (мс)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultsParams.wData.map((r, i) => (
+                    <tr key={r.w + i}>
+                      <td className="border px-2">{r.w}</td>
+                      <td className="border px-2">{r.cf}</td>
+                      <td className="border px-2">{r.time}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </section>
@@ -524,8 +562,8 @@ const Experiments = () => {
           {resultsSize.length > 0 && (
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              onClick={() => exportToCSV(resultsSize, "size_experiment.csv")}>
-              Завантажити результати
+              onClick={() => exportToJSON(resultsSize, "size_experiment.json")}>
+              Завантажити результати (JSON)
             </button>
           )}
         </div>
@@ -534,7 +572,8 @@ const Experiments = () => {
             <div>
               <h3 className="font-semibold mb-2">Greedy: CF від n</h3>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={resultsSize}>
+                <LineChart
+                  data={resultsSize.map((r) => ({ n: r.n, cf: r.greedy.cf }))}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="n" />
                   <YAxis
@@ -544,7 +583,7 @@ const Experiments = () => {
                   <Legend />
                   <Line
                     type="monotone"
-                    dataKey="greedy_cf"
+                    dataKey="cf"
                     stroke="#8884d8"
                     name="Greedy CF"
                   />
@@ -554,7 +593,11 @@ const Experiments = () => {
             <div>
               <h3 className="font-semibold mb-2">Stochastic: CF від n</h3>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={resultsSize}>
+                <LineChart
+                  data={resultsSize.map((r) => ({
+                    n: r.n,
+                    cf: r.stochastic.cf,
+                  }))}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="n" />
                   <YAxis
@@ -564,7 +607,7 @@ const Experiments = () => {
                   <Legend />
                   <Line
                     type="monotone"
-                    dataKey="stochastic_cf"
+                    dataKey="cf"
                     stroke="#ff7300"
                     name="Stochastic CF"
                   />
@@ -574,7 +617,11 @@ const Experiments = () => {
             <div>
               <h3 className="font-semibold mb-2">Greedy: Час від n</h3>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={resultsSize}>
+                <LineChart
+                  data={resultsSize.map((r) => ({
+                    n: r.n,
+                    time: r.greedy.time,
+                  }))}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="n" />
                   <YAxis
@@ -588,7 +635,7 @@ const Experiments = () => {
                   <Legend />
                   <Line
                     type="monotone"
-                    dataKey="greedy_time"
+                    dataKey="time"
                     stroke="#82ca9d"
                     name="Greedy Час"
                   />
@@ -598,7 +645,11 @@ const Experiments = () => {
             <div>
               <h3 className="font-semibold mb-2">Stochastic: Час від n</h3>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={resultsSize}>
+                <LineChart
+                  data={resultsSize.map((r) => ({
+                    n: r.n,
+                    time: r.stochastic.time,
+                  }))}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="n" />
                   <YAxis
@@ -612,7 +663,7 @@ const Experiments = () => {
                   <Legend />
                   <Line
                     type="monotone"
-                    dataKey="stochastic_time"
+                    dataKey="time"
                     stroke="#0088FE"
                     name="Stochastic Час"
                   />
@@ -634,10 +685,10 @@ const Experiments = () => {
                   {resultsSize.map((r) => (
                     <tr key={r.n}>
                       <td className="border px-2">{r.n}</td>
-                      <td className="border px-2">{r.greedy_cf}</td>
-                      <td className="border px-2">{r.greedy_time}</td>
-                      <td className="border px-2">{r.stochastic_cf}</td>
-                      <td className="border px-2">{r.stochastic_time}</td>
+                      <td className="border px-2">{r.greedy.cf}</td>
+                      <td className="border px-2">{r.greedy.time}</td>
+                      <td className="border px-2">{r.stochastic.cf}</td>
+                      <td className="border px-2">{r.stochastic.time}</td>
                     </tr>
                   ))}
                 </tbody>
