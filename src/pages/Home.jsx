@@ -159,21 +159,23 @@ const Home = () => {
     return (
       <div className="mt-6">
         <h3 className="font-semibold text-lg mb-2">{label}</h3>
-        <table className="mx-auto border-collapse border border-gray-400">
-          <tbody>
-            {result.placement.map((row, i) => (
-              <tr key={i}>
-                {row.map((val, j) => (
-                  <td
-                    key={j}
-                    className="border border-gray-400 px-2 py-1 text-center">
-                    {val}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="mx-auto border-collapse border border-gray-400 ">
+            <tbody>
+              {result.placement.map((row, i) => (
+                <tr key={i}>
+                  {row.map((val, j) => (
+                    <td
+                      key={j}
+                      className="border border-gray-400 px-2 py-1 text-center">
+                      {val}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         {Array.isArray(result.corners) ? (
           <div className="mt-4">
             <h4 className="font-semibold mb-1">Кутові сили:</h4>
@@ -211,7 +213,7 @@ const Home = () => {
         onSubmit={handleSubmit}
         className="bg-white shadow-lg rounded-lg p-8 w-full max-w-2xl space-y-6">
         {/* Save/Load/Edit buttons */}
-        <div className="flex gap-3 mb-4">
+        <div className="flex gap-3 mb-4 sm:flex-row flex-col">
           <button
             type="button"
             onClick={handleSave}
@@ -285,7 +287,7 @@ const Home = () => {
         </div>
 
         {inputMode === "manual" ? (
-          <div>
+          <div className="overflow-x-auto">
             <table className="mx-auto border-collapse">
               <tbody>
                 {matrix.map((row, i) => (
@@ -339,7 +341,7 @@ const Home = () => {
               className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-4 rounded transition">
               Згенерувати
             </button>
-            <div>
+            <div className="overflow-x-auto">
               <table className="mx-auto border-collapse">
                 <tbody>
                   {matrix.map((row, i) => (
