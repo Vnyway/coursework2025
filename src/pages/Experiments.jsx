@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Генерує n x n матрицю з випадковими вагами у діапазоні [minW, maxW]
+// Generates an n x n matrix with random weights in the range [minW, maxW]
 const generateMatrix = (n, minW = 1, maxW = 10) => {
   return Array.from({ length: n }, () =>
     Array.from({ length: n }, () =>
@@ -22,7 +22,7 @@ const generateMatrix = (n, minW = 1, maxW = 10) => {
   );
 };
 
-// Зберегти дані у форматі JSON
+// Save data as JSON
 function exportToJSON(data, filename) {
   if (!data) return;
   const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -37,7 +37,7 @@ function exportToJSON(data, filename) {
 }
 
 const Experiments = () => {
-  // Параметри для експериментів
+  // Experiment parameters
   const [tRange, setTRange] = useState({ from: 100, to: 1000, step: 100 });
   const [nRange, setNRange] = useState({ from: 3, to: 10, step: 1 });
   const [wRange, setWRange] = useState({ min: 1, max: 10 });
@@ -48,7 +48,7 @@ const Experiments = () => {
   const [resultsSize, setResultsSize] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Генерація масиву значень за діапазоном
+  // Generate an array of values by range
   const range = (from, to, step) => {
     const arr = [];
     for (let v = from; v <= to; v += step) arr.push(v);
@@ -84,7 +84,7 @@ const Experiments = () => {
     }, 100);
   };
 
-  // 3.4.2: параметри стохастичного алгоритму (без t)
+  // 3.4.2: stochastic algorithm parameters (without t)
   const runParamsExperiment = () => {
     setLoading(true);
     setTimeout(() => {
@@ -133,7 +133,7 @@ const Experiments = () => {
     }, 100);
   };
 
-  // 3.4.3: розмірність задачі
+  // 3.4.3: problem size
   const runSizeExperiment = () => {
     setLoading(true);
     setTimeout(() => {
@@ -179,14 +179,14 @@ const Experiments = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-4 space-y-8">
-      <h1 className="text-2xl font-bold mb-4">Експерименти з алгоритмами</h1>
+      <h1 className="text-2xl font-bold mb-4">Algorithm Experiments</h1>
 
-      {/* Параметри експериментів */}
+      {/* Experiment parameters */}
       <section className="bg-gray-50 rounded shadow p-4 mb-4">
-        <h2 className="text-lg font-semibold mb-2">Параметри експериментів</h2>
+        <h2 className="text-lg font-semibold mb-2">Experiment Parameters</h2>
         <div className="flex flex-wrap gap-4">
           <div>
-            <label className="block text-xs">Розмірність задачі (n):</label>
+            <label className="block text-xs">Problem size (n):</label>
             <div className="flex gap-1">
               <input
                 type="number"
@@ -196,7 +196,7 @@ const Experiments = () => {
                   setNRange((r) => ({ ...r, from: +e.target.value }))
                 }
                 className="border px-1 w-14"
-                placeholder="від"
+                placeholder="from"
               />
               <span>-</span>
               <input
@@ -207,9 +207,9 @@ const Experiments = () => {
                   setNRange((r) => ({ ...r, to: +e.target.value }))
                 }
                 className="border px-1 w-14"
-                placeholder="до"
+                placeholder="to"
               />
-              <span>крок</span>
+              <span>step</span>
               <input
                 type="number"
                 min={1}
@@ -218,12 +218,12 @@ const Experiments = () => {
                   setNRange((r) => ({ ...r, step: +e.target.value }))
                 }
                 className="border px-1 w-10"
-                placeholder="крок"
+                placeholder="step"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs">Параметр t (ітерації):</label>
+            <label className="block text-xs">Parameter t (iterations):</label>
             <div className="flex gap-1">
               <input
                 type="number"
@@ -233,7 +233,7 @@ const Experiments = () => {
                   setTRange((r) => ({ ...r, from: +e.target.value }))
                 }
                 className="border px-1 w-14"
-                placeholder="від"
+                placeholder="from"
               />
               <span>-</span>
               <input
@@ -244,9 +244,9 @@ const Experiments = () => {
                   setTRange((r) => ({ ...r, to: +e.target.value }))
                 }
                 className="border px-1 w-14"
-                placeholder="до"
+                placeholder="to"
               />
-              <span>крок</span>
+              <span>step</span>
               <input
                 type="number"
                 min={1}
@@ -255,12 +255,12 @@ const Experiments = () => {
                   setTRange((r) => ({ ...r, step: +e.target.value }))
                 }
                 className="border px-1 w-10"
-                placeholder="крок"
+                placeholder="step"
               />
             </div>
           </div>
           <div>
-            <label className="block text-xs">Діапазон ваг:</label>
+            <label className="block text-xs">Weight range:</label>
             <div className="flex gap-1">
               <input
                 type="number"
@@ -286,14 +286,16 @@ const Experiments = () => {
             </div>
           </div>
           <div>
-            <label className="block text-xs">Кількість ІЗ на точку:</label>
+            <label className="block text-xs">
+              Number of instances per point:
+            </label>
             <input
               type="number"
               min={1}
               value={numInstances}
               onChange={(e) => setNumInstances(+e.target.value)}
               className="border px-1 w-14"
-              placeholder="Кількість"
+              placeholder="Count"
             />
           </div>
         </div>
@@ -302,27 +304,27 @@ const Experiments = () => {
       {/* 3.4.1 */}
       <section className="bg-white rounded shadow p-4">
         <h2 className="text-xl font-semibold mb-2">
-          3.4.1 Визначення параметра t для стохастичного алгоритму
+          Determining parameter t for the stochastic algorithm
         </h2>
         <div className="flex gap-2 mb-2">
           <button
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             onClick={runTExperiment}
             disabled={loading}>
-            Запустити експеримент
+            Run experiment
           </button>
           {resultsT.length > 0 && (
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               onClick={() => exportToJSON(resultsT, "t_experiment.json")}>
-              Завантажити результати (JSON)
+              Download results (JSON)
             </button>
           )}
         </div>
         {resultsT.length > 0 && (
           <div className="mt-4 space-y-8">
             <div>
-              <h3 className="font-semibold mb-2">Залежність CF від t</h3>
+              <h3 className="font-semibold mb-2">CF vs t</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={resultsT}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -342,14 +344,14 @@ const Experiments = () => {
               </ResponsiveContainer>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Залежність часу від t</h3>
+              <h3 className="font-semibold mb-2">Time vs t</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={resultsT}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="t" />
                   <YAxis
                     label={{
-                      value: "Час (мс)",
+                      value: "Time (ms)",
                       angle: -90,
                       position: "insideLeft",
                     }}
@@ -360,7 +362,7 @@ const Experiments = () => {
                     type="monotone"
                     dataKey="time"
                     stroke="#82ca9d"
-                    name="Час (мс)"
+                    name="Time (ms)"
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -370,7 +372,7 @@ const Experiments = () => {
                 <tr>
                   <th className="border px-2">t</th>
                   <th className="border px-2">CF</th>
-                  <th className="border px-2">Час (мс)</th>
+                  <th className="border px-2">Time (ms)</th>
                 </tr>
               </thead>
               <tbody>
@@ -390,14 +392,14 @@ const Experiments = () => {
       {/* 3.4.2 */}
       <section className="bg-white rounded shadow p-4">
         <h2 className="text-xl font-semibold mb-2">
-          3.4.2 Дослідження впливу параметрів стохастичного алгоритму
+          Study of the influence of stochastic algorithm parameters
         </h2>
         <div className="flex gap-2 mb-2">
           <button
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             onClick={runParamsExperiment}
             disabled={loading}>
-            Запустити експеримент
+            Run experiment
           </button>
           {resultsParams.nData && (
             <button
@@ -406,14 +408,14 @@ const Experiments = () => {
                 exportToJSON(resultsParams.nData, "params_n.json");
                 exportToJSON(resultsParams.wData, "params_w.json");
               }}>
-              Завантажити результати (JSON)
+              Download results (JSON)
             </button>
           )}
         </div>
         {resultsParams.nData && (
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h3 className="font-semibold mb-2">CF від n</h3>
+              <h3 className="font-semibold mb-2">CF vs n</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={resultsParams.nData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -433,14 +435,14 @@ const Experiments = () => {
               </ResponsiveContainer>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Час від n</h3>
+              <h3 className="font-semibold mb-2">Time vs n</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={resultsParams.nData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="n" />
                   <YAxis
                     label={{
-                      value: "Час (мс)",
+                      value: "Time (ms)",
                       angle: -90,
                       position: "insideLeft",
                     }}
@@ -451,13 +453,13 @@ const Experiments = () => {
                     type="monotone"
                     dataKey="time"
                     stroke="#82ca9d"
-                    name="Час (мс)"
+                    name="Time (ms)"
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">CF від w</h3>
+              <h3 className="font-semibold mb-2">CF vs w</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={resultsParams.wData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -477,14 +479,14 @@ const Experiments = () => {
               </ResponsiveContainer>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Час від w</h3>
+              <h3 className="font-semibold mb-2">Time vs w</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart data={resultsParams.wData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="w" />
                   <YAxis
                     label={{
-                      value: "Час (мс)",
+                      value: "Time (ms)",
                       angle: -90,
                       position: "insideLeft",
                     }}
@@ -495,20 +497,20 @@ const Experiments = () => {
                     type="monotone"
                     dataKey="time"
                     stroke="#82ca9d"
-                    name="Час (мс)"
+                    name="Time (ms)"
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            {/* Таблиці для nData та wData */}
+            {/* Tables for nData and wData */}
             <div className="md:col-span-2">
-              <h3 className="font-semibold mb-2">Таблиця результатів (n)</h3>
+              <h3 className="font-semibold mb-2">Results table (n)</h3>
               <table className="mt-2 w-full text-sm border">
                 <thead>
                   <tr>
                     <th className="border px-2">n</th>
                     <th className="border px-2">CF</th>
-                    <th className="border px-2">Час (мс)</th>
+                    <th className="border px-2">Time (ms)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -523,13 +525,13 @@ const Experiments = () => {
               </table>
             </div>
             <div className="md:col-span-2">
-              <h3 className="font-semibold mb-2">Таблиця результатів (w)</h3>
+              <h3 className="font-semibold mb-2">Results table (w)</h3>
               <table className="mt-2 w-full text-sm border">
                 <thead>
                   <tr>
                     <th className="border px-2">w</th>
                     <th className="border px-2">CF</th>
-                    <th className="border px-2">Час (мс)</th>
+                    <th className="border px-2">Time (ms)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -550,27 +552,27 @@ const Experiments = () => {
       {/* 3.4.3 */}
       <section className="bg-white rounded shadow p-4">
         <h2 className="text-xl font-semibold mb-2">
-          3.4.3 Вплив розмірності задачі на точність та час роботи алгоритмів
+          Influence of problem size on the accuracy and runtime of algorithms
         </h2>
         <div className="flex gap-2 mb-2">
           <button
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             onClick={runSizeExperiment}
             disabled={loading}>
-            Запустити експеримент
+            Run experiment
           </button>
           {resultsSize.length > 0 && (
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               onClick={() => exportToJSON(resultsSize, "size_experiment.json")}>
-              Завантажити результати (JSON)
+              Download results (JSON)
             </button>
           )}
         </div>
         {resultsSize.length > 0 && (
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h3 className="font-semibold mb-2">Greedy: CF від n</h3>
+              <h3 className="font-semibold mb-2">Greedy: CF vs n</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart
                   data={resultsSize.map((r) => ({ n: r.n, cf: r.greedy.cf }))}>
@@ -591,7 +593,7 @@ const Experiments = () => {
               </ResponsiveContainer>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Stochastic: CF від n</h3>
+              <h3 className="font-semibold mb-2">Stochastic: CF vs n</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart
                   data={resultsSize.map((r) => ({
@@ -615,7 +617,7 @@ const Experiments = () => {
               </ResponsiveContainer>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Greedy: Час від n</h3>
+              <h3 className="font-semibold mb-2">Greedy: Time vs n</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart
                   data={resultsSize.map((r) => ({
@@ -626,7 +628,7 @@ const Experiments = () => {
                   <XAxis dataKey="n" />
                   <YAxis
                     label={{
-                      value: "Час (мс)",
+                      value: "Time (ms)",
                       angle: -90,
                       position: "insideLeft",
                     }}
@@ -637,13 +639,13 @@ const Experiments = () => {
                     type="monotone"
                     dataKey="time"
                     stroke="#82ca9d"
-                    name="Greedy Час"
+                    name="Greedy Time"
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Stochastic: Час від n</h3>
+              <h3 className="font-semibold mb-2">Stochastic: Time vs n</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <LineChart
                   data={resultsSize.map((r) => ({
@@ -654,7 +656,7 @@ const Experiments = () => {
                   <XAxis dataKey="n" />
                   <YAxis
                     label={{
-                      value: "Час (мс)",
+                      value: "Time (ms)",
                       angle: -90,
                       position: "insideLeft",
                     }}
@@ -665,7 +667,7 @@ const Experiments = () => {
                     type="monotone"
                     dataKey="time"
                     stroke="#0088FE"
-                    name="Stochastic Час"
+                    name="Stochastic Time"
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -676,9 +678,9 @@ const Experiments = () => {
                   <tr>
                     <th className="border px-2">n</th>
                     <th className="border px-2">Greedy CF</th>
-                    <th className="border px-2">Greedy Час (мс)</th>
+                    <th className="border px-2">Greedy Time (ms)</th>
                     <th className="border px-2">Stochastic CF</th>
-                    <th className="border px-2">Stochastic Час (мс)</th>
+                    <th className="border px-2">Stochastic Time (ms)</th>
                   </tr>
                 </thead>
                 <tbody>

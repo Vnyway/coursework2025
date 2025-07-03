@@ -1,9 +1,9 @@
 export const links = [
-  { id: 1, name: "Індивідуальна задача", path: "/", shortName: "Задача" },
+  { id: 1, name: "Individual Task", path: "/", shortName: "Task" },
   {
     id: 2,
-    name: "Експерименти",
+    name: "Experiments",
     path: "/experiments",
-    shortName: "Експерименти",
+    shortName: "Experiments",
   },
 ];

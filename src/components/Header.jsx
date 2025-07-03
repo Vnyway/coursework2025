@@ -6,8 +6,8 @@ const Header = () => {
     <header className="bg-white shadow rounded-b-lg mb-6">
       <div className="max-w-5xl mx-auto px-4 min-h-[72px] flex items-center justify-between overflow-x-auto">
         <div className="text-xl font-bold text-blue-700 tracking-tight">
-          <span className="hidden sm:inline">Курсова робота 2025</span>
-          <span className="sm:hidden">КР2025</span>
+          <span className="hidden sm:inline">Coursework 2025</span>
+          <span className="sm:hidden">CW2025</span>
         </div>
         <nav className="flex gap-4">
           {links.map((l) => (

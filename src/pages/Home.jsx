@@ -80,10 +80,10 @@ const Home = () => {
           setMinWeight(data.minWeight ?? 1);
           setMaxWeight(data.maxWeight ?? 10);
         } else {
-          alert("Некоректний формат файлу.");
+          alert("Incorrect file format.");
         }
       } catch {
-        alert("Помилка при читанні файлу.");
+        alert("Error reading file.");
       }
     };
     reader.readAsText(file);
@@ -146,7 +146,7 @@ const Home = () => {
       const stochasticRes = stochasticPlacement(matrix, iterations);
       setResults({ greedy: greedyRes, stochastic: stochasticRes });
     } catch (error) {
-      console.error("Помилка:", error);
+      console.error("Error:", error);
     }
   };
 
@@ -178,11 +178,11 @@ const Home = () => {
         </div>
         {Array.isArray(result.corners) ? (
           <div className="mt-4">
-            <h4 className="font-semibold mb-1">Кутові сили:</h4>
+            <h4 className="font-semibold mb-1">Corner forces:</h4>
             <ul className="flex gap-4">
               {result.corners.map((force, idx) => (
                 <li key={idx}>
-                  Кут {idx + 1}:{" "}
+                  Corner {idx + 1}:{" "}
                   <span className="font-mono">{force.toFixed(3)}</span>
                 </li>
               ))}
@@ -193,7 +193,7 @@ const Home = () => {
         )}
         {"cf" in result && (
           <div className="mt-2">
-            <h4 className="font-semibold mb-1">Цільова функція:</h4>
+            <h4 className="font-semibold mb-1">Objective function:</h4>
             <span className="font-mono">{result.cf.toFixed(3)}</span>
           </div>
         )}
@@ -201,7 +201,7 @@ const Home = () => {
           type="button"
           onClick={() => handleExportResult(type)}
           className="mt-4 bg-gray-700 hover:bg-gray-900 text-white font-semibold py-1 px-4 rounded transition">
-          Експортувати результат
+          Export result
         </button>
       </div>
     );
@@ -218,19 +218,19 @@ const Home = () => {
             type="button"
             onClick={handleSave}
             className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
-            title="Зберегти задачу">
+            title="Save task">
             <span role="img" aria-label="save">
               ⬇️
             </span>
-            Зберегти задачу
+            Save task
           </button>
           <label
             className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded cursor-pointer"
-            title="Завантажити задачу">
+            title="Load task">
             <span role="img" aria-label="load">
               ⬆️
             </span>
-            Завантажити задачу
+            Load task
             <input
               type="file"
               accept="application/json"
@@ -242,11 +242,11 @@ const Home = () => {
             type="button"
             onClick={handleEdit}
             className="flex items-center gap-1 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded"
-            title="Редагувати">
+            title="Edit">
             <span role="img" aria-label="edit">
               ✏️
             </span>
-            Редагувати
+            Edit
           </button>
         </div>
 
@@ -259,7 +259,7 @@ const Home = () => {
               onChange={handleInputModeChange}
               className="mr-2"
             />
-            Ручний ввід
+            Manual input
           </label>
           <label className="font-medium text-gray-700">
             <input
@@ -269,13 +269,13 @@ const Home = () => {
               onChange={handleInputModeChange}
               className="mr-2"
             />
-            Генерація випадкових даних
+            Generate random data
           </label>
         </div>
 
         <div>
           <label className="block text-gray-700 font-medium mb-2">
-            Розмір матриці (n × n):
+            Matrix size (n × n):
             <input
               type="number"
               min="1"
@@ -315,7 +315,7 @@ const Home = () => {
           <div className="space-y-3">
             <div>
               <label className="block text-gray-700 font-medium mb-1">
-                Діапазон ваг:
+                Weight range:
                 <input
                   type="number"
                   min="1"
@@ -339,7 +339,7 @@ const Home = () => {
               type="button"
               onClick={handleGenerate}
               className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-4 rounded transition">
-              Згенерувати
+              Generate
             </button>
             <div className="overflow-x-auto">
               <table className="mx-auto border-collapse">
@@ -366,7 +366,7 @@ const Home = () => {
 
         <div>
           <label className="block text-gray-700 font-medium mb-2">
-            Кількість ітерацій для SA:
+            Number of iterations for SA:
             <input
               type="number"
               min="1"
@@ -380,12 +380,12 @@ const Home = () => {
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition">
-            Розв’язати
+            Solve
           </button>
         </div>
         {/* Results */}
-        {renderResultTable(results.greedy, "Результат (GA)", "greedy")}
-        {renderResultTable(results.stochastic, "Результат (SA)", "stochastic")}
+        {renderResultTable(results.greedy, "Result (GA)", "greedy")}
+        {renderResultTable(results.stochastic, "Result (SA)", "stochastic")}
       </form>
     </main>
   );
