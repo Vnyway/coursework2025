@@ -1,70 +1,129 @@
-# Getting Started with Create React App
+# Web Application for Research on Optimal Cargo Placement Algorithms
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## App Access
 
-## Available Scripts
+Access the app at: [https://bright-douhua-5e4b1d.netlify.app/](https://bright-douhua-5e4b1d.netlify.app/)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Description
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This web application provides a complete set of tools for solving the optimal cargo placement problem on a platform. It allows users to input or generate problem data, solve it using greedy and stochastic algorithms, and conduct experimental research to analyze algorithm efficiency.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Core Features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Individual Problem Mode
 
-### `npm run build`
+- Manual input of the weight matrix
+- Random problem generation with configurable parameters
+- Matrix editing support
+- Saving/loading tasks (JSON format only)
+- Solving using:
+  - **Greedy Algorithm (GA)**
+  - **Stochastic Algorithm (SA)** with iteration parameter `t`
+- Output includes:
+  - Placement matrix
+  - Corner force values
+  - Objective function value
+- Export of results (**JSON only**)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Experimental Research
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Configurable parameters:
+  - Problem size range
+  - Number of experiments per data point
+  - Weight range
+  - Iteration parameter `t`
+- Experiment types:
+  - Finding optimal `t` for SA
+  - Impact of problem size and parameters on accuracy and runtime
+  - Comparing GA and SA performance
+- Output includes:
+  - Tables and charts (via Recharts)
+  - Export results as JSON
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## Input and Output Data
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Input:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Weight matrix `n × n`
+- Problem size `n`
+- Iteration count `t`
+- Minimum and maximum weights for generation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Output:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Placement matrix (GA & SA)
+- Corner forces (4 values)
+- Objective function value
 
-## Learn More
+---
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Tech Stack
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **React** – frontend framework for SPA development
+- **Tailwind CSS** – responsive design
+- **React Router DOM** – page routing
+- **Recharts** – data visualization for experiments
+- **Netlify** – hosting and CI/CD
 
-### Code Splitting
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## App Structure
 
-### Analyzing the Bundle Size
+### Main Pages:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- **Individual Task** – input/edit/generate/solve problems
+- **Experiments** – configure and run batch experiments
 
-### Making a Progressive Web App
+### Key Components:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- `MatrixInput` – matrix entry interface
+- `Solver` – logic for GA and SA algorithms
+- `ExperimentPanel` – manage experiment configurations
+- `Charts` – render experimental results
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## User Guide
 
-### Deployment
+1. **Go to the homepage**
+2. **Choose how to input data**:
+   - Manually (enter `n` and weights)
+   - Generate (specify `n` and weight range)
+3. **Set iteration parameter `t` for SA**
+4. **Click "Solve"** – view results for both GA and SA
+5. **Save the task or result as JSON**
+6. **Go to “Experiments”** to:
+   - Set parameters (size, t, experiments, step)
+   - Choose one of the three experiment types
+   - View results as charts and tables
+   - Download results as CSV or JSON
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+## Local Installation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+To run the app locally:
+
+1. Clone the repository:
+   ```bash
+   git clone <your-repo-url>
+   cd <your-repo-folder>
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm start
+   ```
+4. Open in browser::
+   ```bash
+   http://localhost:3000
+   ```
