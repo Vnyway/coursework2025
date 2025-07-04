@@ -112,8 +112,8 @@ To run the app locally:
 
 1. Clone the repository:
    ```bash
-   git clone <your-repo-url>
-   cd <your-repo-folder>
+   git clone https://github.com/Vnyway/coursework2025.git
+   cd coursework2025
    ```
 2. Install dependencies:
    ```bash
